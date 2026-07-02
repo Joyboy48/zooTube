@@ -20,20 +20,21 @@ function App() {
     <>
       <Router>
         <Routes>
-          {/* Public Routes */}
+          {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected/Main Routes wrapper */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="/video/:id" element={<VideoDetail />} />
-              <Route path="/c/:username" element={<ChannelProfile />} />
-              <Route path="/explore" element={<Home />} />
-              <Route path="/shorts" element={<Shorts />} />
-              <Route path="/playlist/:id" element={<PlaylistDetail />} />
-              
+          {/* Public Pages — no login needed */}
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="/video/:id" element={<VideoDetail />} />
+            <Route path="/c/:username" element={<ChannelProfile />} />
+            <Route path="/explore" element={<Home />} />
+            <Route path="/shorts" element={<Shorts />} />
+            <Route path="/playlist/:id" element={<PlaylistDetail />} />
+
+            {/* Private Pages — login required */}
+            <Route element={<ProtectedRoute />}>
               <Route path="/subscriptions" element={<Subscriptions />} />
               <Route path="/history" element={<History />} />
               <Route path="/liked" element={<LikedVideos />} />
