@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ThumbsUp, Share2, CheckCircle, Bell, Eye,
@@ -10,6 +10,7 @@ import api from "../api/axios";
 import Comments from "../components/Comments";
 import { VideoCard } from "../components/VideoCard";
 import { useMiniPlayer } from "../context/MiniPlayerContext";
+import { useAuth } from "../context/AuthContext";
 
 /* ─── Quality URL helper ─────────────────────────── */
 const QUALITIES = [
@@ -195,6 +196,8 @@ const PlaylistModal = ({ videoId, onClose }) => {
 /* ─── Main Page ───────────────────────────────── */
 const VideoDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const { openMini, closeMini } = useMiniPlayer();
   const videoRef = useRef(null);
   const [video, setVideo] = useState(null);
@@ -265,20 +268,30 @@ const VideoDetail = () => {
   }, [id]);
 
   const handleLike = async () => {
+    if (!currentUser) {
+      toast.error("Please sign in to like videos");
+      navigate("/login");
+      return;
+    }
     try {
       await api.post(`/likes/toggle/v/${id}`);
       setIsLiked(p => !p);
       setLikesCount(p => isLiked ? p - 1 : p + 1);
-    } catch { toast.error("Please login to like"); }
+    } catch { toast.error("Something went wrong"); }
   };
 
   const handleSubscribe = async () => {
+    if (!currentUser) {
+      toast.error("Please sign in to subscribe");
+      navigate("/login");
+      return;
+    }
     if (!video?.owner?._id) return;
     try {
       await api.post(`/subscriptions/c/${video.owner._id}`);
       setIsSubscribed(p => !p);
       toast.success(isSubscribed ? "Unsubscribed" : "Subscribed! 🔔");
-    } catch { toast.error("Please login to subscribe"); }
+    } catch { toast.error("Something went wrong"); }
   };
 
   if (loading) {
